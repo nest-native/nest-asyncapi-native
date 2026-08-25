@@ -11,12 +11,12 @@
     "start": "ts-node --transpile-only src/main.ts"
   },
   "dependencies": {
-    "@asyncapi/parser": "3.6.1",
+    "@asyncapi/parser": "3.6.3",
     "@nest-native/asyncapi": "0.2.0",
-    "@nestjs/common": "11.1.28",
-    "@nestjs/core": "11.1.28",
-    "@nestjs/platform-express": "^11.1.28",
-    "@nestjs/swagger": "11.4.6",
+    "@nestjs/common": "11.2.1",
+    "@nestjs/core": "11.2.1",
+    "@nestjs/platform-express": "^11.2.1",
+    "@nestjs/swagger": "11.4.7",
     "class-transformer": "0.5.1",
     "class-validator": "0.15.1",
     "reflect-metadata": "0.2.2",
