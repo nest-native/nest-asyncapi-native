@@ -54,6 +54,10 @@ Supply-chain checks are non-negotiable:
 - Every dependency addition or update is reviewed for legitimacy, lifecycle
   scripts, and unpinned Git or URL sources.
 - The viewer bundle is reviewed for size and supply-chain risk on every update.
+- The viewer page loads its script and stylesheet from a CDN by default. Self-host
+  them through `scriptUrl` / `stylesUrl` when a strict Content-Security-Policy, an
+  air-gapped network, or a supply-chain policy rules out a third-party origin —
+  see [Viewer Assets](docs-route.md#viewer-assets).
 
 Run the high-severity audit locally:
 

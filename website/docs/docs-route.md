@@ -56,6 +56,46 @@ underlying framework exposes and fall back across alternatives, so the same call
 works on both `@nestjs/platform-express` and `@nestjs/platform-fastify` without
 importing either framework's types.
 
+## Viewer Assets
+
+The page renders with the official
+[`@asyncapi/react-component`](https://www.npmjs.com/package/@asyncapi/react-component)
+standalone bundle, and by default it loads that script and its stylesheet from a
+CDN — the same posture `@nestjs/swagger` takes for swagger-ui assets. That is
+what keeps the package at `"dependencies": {}` with no viewer runtime. The spec
+itself is embedded inline in the page, so the assets are the only thing the
+browser fetches from elsewhere.
+
+That default is a remote dependency at render time. Self-host the two assets and
+point `scriptUrl` / `stylesUrl` at your own origin when the deployment has any
+of:
+
+- **A strict Content-Security-Policy** — a policy whose `script-src` /
+  `style-src` does not allow the CDN blocks the assets, and the viewer renders
+  as an empty page.
+- **An air-gapped or egress-filtered network** — browsers on it cannot reach the
+  CDN at all.
+- **Supply-chain requirements** — self-hosting serves the exact bytes you
+  vendored and reviewed, instead of trusting a third-party origin on every page
+  load.
+
+```ts
+AsyncApiModule.setup('async-docs', app, document, {
+  scriptUrl: '/assets/asyncapi/standalone.js',
+  stylesUrl: '/assets/asyncapi/styles.css',
+});
+```
+
+Both files come out of an installed `@asyncapi/react-component` —
+`browser/standalone/index.js` and `styles/default.min.css` — and are served
+however you serve any other static asset (`ServeStaticModule`, a reverse proxy,
+or a CDN you control). The defaults are exported as `DEFAULT_VIEWER_SCRIPT_URL`
+and `DEFAULT_VIEWER_STYLES_URL`, so the viewer version the page expects is
+readable from the package rather than guessed.
+
+The JSON and YAML routes serve the document itself and load nothing remote —
+only the viewer page does.
+
 ## Options
 
 `AsyncApiDocsOptions` extends the viewer options:
@@ -65,7 +105,8 @@ importing either framework's types.
 | `jsonDocumentUrl` | Override the JSON route (default `${path}-json`) |
 | `yamlDocumentUrl` | Override the YAML route (default `${path}-yaml`) |
 | `title` | Title shown on the viewer page |
-| viewer options | Presentation options forwarded to the HTML renderer |
+| `scriptUrl` | Viewer script URL (default: the CDN standalone bundle) |
+| `stylesUrl` | Viewer stylesheet URL (default: the CDN stylesheet) |
 
 Routes are normalized to a single leading slash, so passing `docs` or `/docs`
 behaves identically.
