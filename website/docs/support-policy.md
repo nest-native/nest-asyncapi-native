@@ -7,7 +7,7 @@ or AsyncAPI status.
 
 | Runtime | Supported line |
 | --- | --- |
-| Node.js | `>=20` |
+| Node.js | `>=22` |
 | NestJS | `11.x` |
 | AsyncAPI spec target | `3.0` (2.x: best-effort conversion only) |
 | TypeScript | Current project compiler line |
