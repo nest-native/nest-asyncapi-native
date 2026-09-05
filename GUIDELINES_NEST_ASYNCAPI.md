@@ -16,7 +16,7 @@ spec-compliant output, never hide AsyncAPI semantics.
 - Documentation only — this is NOT a runtime transport. Use
   `@nestjs/microservices` or `@nest-native/kafka` for transport.
 - Current stabilization support line:
-  - Node.js `>=20`
+  - Node.js `>=22`
   - NestJS `11.x`
   - AsyncAPI spec target 3.0 (2.x: best-effort conversion only)
 - AsyncAPI viewer: `@asyncapi/react-component` rendered at a configurable

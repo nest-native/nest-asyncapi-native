@@ -14,7 +14,7 @@ with `@asyncapi/parser`.
 `nestjs-asyncapi` is effectively abandoned: AsyncAPI 3.0 was requested in
 December 2023 with no progress, it breaks on current Node and `@nestjs/swagger`,
 and users openly ask whether it is maintained. `@nest-native/asyncapi` targets
-AsyncAPI 3.0, runs on Node `>=20` and NestJS `11.x`, and keeps the published
+AsyncAPI 3.0, runs on Node `>=22` and NestJS `11.x`, and keeps the published
 package at `"dependencies": {}`.
 
 ## The One Conceptual Change

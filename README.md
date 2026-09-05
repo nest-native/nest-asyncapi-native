@@ -63,7 +63,7 @@ This package's headline differentiators:
 
 | Runtime | Supported line |
 | --- | --- |
-| Node.js | `>=20` |
+| Node.js | `>=22` |
 | NestJS | `11.x` |
 | AsyncAPI spec target | `3.0` (2.x: best-effort conversion only) |
 | Transports | Kafka, NATS, MQTT, AMQP (typed protocol bindings) |
@@ -206,7 +206,7 @@ the official `@asyncapi/parser`.
 The repository ships the same review posture as its sibling `@nest-native`
 packages, using `node:test` and `c8`:
 
-- package build, typecheck, and coverage on Node.js 20 and 22
+- package build, typecheck, and coverage on Node.js 22 and 24
 - coverage with `c8`, enforced at 100% for statements, branches, functions, and lines
 - sticky PR comments for coverage, test performance, and cognitive complexity
 - cognitive complexity enforcement with SonarJS threshold `15`
