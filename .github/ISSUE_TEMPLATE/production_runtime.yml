@@ -53,7 +53,7 @@ body:
     id: nest-version
     attributes:
       label: NestJS version
-      placeholder: "11.x"
+      placeholder: "11.x or 12.x"
     validations:
       required: true
   - type: input
@@ -67,7 +67,7 @@ body:
     id: node-version
     attributes:
       label: Node.js version
-      placeholder: "20.x, 22.x, 24.x"
+      placeholder: "22.x or 24.x"
     validations:
       required: true
   - type: input

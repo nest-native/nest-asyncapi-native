@@ -37,15 +37,19 @@ jobs:
       - name: Typecheck package
         run: npm run typecheck --workspace @nest-native/asyncapi
 
-  package-test-node-20:
-    name: Package tests/coverage (Node 20)
+  package-test-node-24:
+    name: Package tests/coverage (Node 24)
     runs-on: ubuntu-latest
-
+    # The second Node line. package-quality runs the suite (plus the complexity
+    # gate and the PR reports) on the floor, 22; this job runs the same suite
+    # with coverage on 24, so Node 24 is a tested claim for the tests too, not
+    # only for package-build. This was the Node 20 job until the Node 20
+    # sunset (#59) moved it to 22, where it only duplicated package-quality.
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with:
-          node-version: '22'
+          node-version: '24'
 
       - name: Install dependencies
         run: npm ci

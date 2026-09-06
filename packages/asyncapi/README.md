@@ -43,14 +43,20 @@ runtime transport.
 
 | Runtime | Supported line |
 | --- | --- |
-| Node.js | `>=22` (`>=22.12` to load NestJS 12 from CommonJS) |
+| Node.js | `>=22` (`>=22.12` with NestJS 12 — see the note below the table) |
 | NestJS | `^11.0.0 \|\| ^12.0.0` |
 | AsyncAPI spec target | `3.0` (2.x: best-effort conversion only) |
 | Transports | Kafka, NATS, MQTT, AMQP (typed bindings) |
 
 The published package has no runtime dependencies. The NestJS packages are
-declared as `peerDependencies`, and the AsyncAPI parser and viewer are optional
-peers installed only when you need them.
+declared as `peerDependencies` (`@nestjs/swagger` as an optional one, range
+`^11.4.4 || ^12.0.0`), and the AsyncAPI parser and viewer are optional peers
+installed only when you need them.
+
+NestJS 11 runs on any Node.js `>=22`. NestJS 12 is ESM-only, and a CommonJS
+application loads it through Node's `require(esm)`, which is behind a flag
+before Node.js 22.12.0 — so the 12 end of the range needs Node.js `>=22.12`.
+`engines` stays `>=22` because the 11 end does not need more.
 
 ## Installation
 

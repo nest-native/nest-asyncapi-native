@@ -63,22 +63,26 @@ This package's headline differentiators:
 
 | Runtime | Supported line |
 | --- | --- |
-| Node.js | `>=22` |
+| Node.js | `>=22` (`>=22.12` with NestJS 12 — see the note below the table) |
 | NestJS | `^11.0.0 \|\| ^12.0.0` |
 | AsyncAPI spec target | `3.0` (2.x: best-effort conversion only) |
 | Transports | Kafka, NATS, MQTT, AMQP (typed protocol bindings) |
 | Validation | Zod and class-validator, both app-owned |
 
 The published package keeps `"dependencies": {}`. The NestJS packages are
-declared as `peerDependencies`, and the AsyncAPI parser and viewer are optional
-peers, so applications install only the ecosystems they actually use.
+declared as `peerDependencies` (`@nestjs/swagger` as an optional one, range
+`^11.4.4 || ^12.0.0`), and the AsyncAPI parser and viewer are optional peers,
+so applications install only the ecosystems they actually use.
 
-NestJS 12 is ESM-only; a CommonJS application loads it through `require(esm)`,
-which needs Node `>=22.12`. Both ends of the NestJS range are tested claims:
-the default install and lockfile stay on 11, and a dedicated CI leg
-(`nestjs-latest-major`) installs the 12 set on top, proves every workspace —
-package and samples alike — resolved 12 rather than a nested 11, and re-runs
-the suite, the build, and the whole sample matrix against it.
+NestJS 11 runs on any Node.js `>=22`. NestJS 12 is ESM-only, and a CommonJS
+application loads it through Node's `require(esm)`, which is behind a flag
+before Node.js 22.12.0 — so the 12 end of the range needs Node.js `>=22.12`.
+`engines` stays `>=22` because the 11 end does not need more. Both ends of the
+NestJS range are tested claims: the default install and lockfile stay on 11,
+and a dedicated CI leg (`nestjs-latest-major`) installs the 12 set on top,
+proves every workspace — package and samples alike — resolved 12 rather than a
+nested 11, and re-runs the suite, the build, and the whole sample matrix
+against it.
 
 ## Repository Layout
 

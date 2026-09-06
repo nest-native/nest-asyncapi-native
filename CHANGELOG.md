@@ -9,20 +9,25 @@ package release is useful for users.
 ## Unreleased
 
 - **NestJS 12 is now an allowed peer** (`@nestjs/common` / `@nestjs/core`
-  `^11.0.0 || ^12.0.0`). Nothing in the package changed: the whole suite
-  (126 tests, 100% coverage), typecheck, build, and all seven samples —
+  `^11.0.0 || ^12.0.0`; the optional `@nestjs/swagger` peer, previously listed
+  only in `peerDependenciesMeta` with no range for npm to validate, now
+  declares `^11.4.4 || ^12.0.0`). Nothing in the package changed: the whole
+  suite (126 tests, 100% coverage), typecheck, build, and all seven samples —
   including the `@nestjs/swagger` 12 schema chain and the
   `@nestjs/microservices` 12 migration sample — run unmodified on 12.0.1.
   Isolated major-version review: 12 is ESM-only with an exports map that no
   longer resolves directory indexes — this package imports only from the
   `@nestjs/*` roots, so it is unaffected — and 12 runs lifecycle hooks by
-  hierarchy level, an order document generation never depended on. A consumer
-  on 12 needs Node `>=22.12` when loading NestJS from CommonJS (`require(esm)`)
-  and, for DTO schemas, `@nestjs/swagger` 12, whose own peers require the 12
-  core. The range is widened, not moved: the devDependencies stay on 11 and a
-  new CI leg (`nestjs-latest-major`) installs 12 on top and re-runs typecheck,
-  the suite, the build, and the sample matrix against it, with a check that
-  every workspace really resolved 12 rather than a nested 11.
+  hierarchy level, an order document generation never depended on. NestJS 11
+  runs on any Node `>=22`; the 12 end of the range needs Node `>=22.12`, where
+  `require(esm)` is no longer behind a flag (this package is CommonJS and
+  loads the ESM-only 12 through it), and `engines` stays `>=22` because the 11
+  end does not need more. For DTO schemas on 12, install `@nestjs/swagger` 12,
+  whose own peers require the 12 core. The range is widened, not moved: the
+  devDependencies stay on 11 and a new CI leg (`nestjs-latest-major`) installs
+  12 on top and re-runs typecheck, the suite, the build, and the sample matrix
+  against it, with a check that every workspace really resolved 12 rather than
+  a nested 11.
 - Repo tooling: `release:check` now fails when any workspace resolves an
   `@nestjs/*` package from a copy nested under it instead of the root
   `node_modules`. The lockfile had drifted that way — the sample manifests
@@ -30,7 +35,9 @@ package release is useful for users.
   lockfile kept nested 11.4.4 / 26.0.1 copies under every sample, so the
   samples were exercising an older `@nestjs/swagger` than the package suite.
   The stale entries are removed; every workspace now resolves the hoisted
-  versions it declares.
+  versions it declares. CI also runs the coverage suite on Node 24 now: the
+  job the Node 20 sunset (#59) moved to 22 had kept its "Node 20" name and
+  only duplicated the Node 22 quality run.
 - Stryker mutation testing (repo tooling; nothing ships in the package):
   `npm run test:mutation` (incremental) / `npm run test:mutation:full`, with
   `STRYKER_MUTATE` scoping (comma-separated globs). Opt-in and local-only —

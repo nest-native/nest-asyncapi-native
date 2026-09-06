@@ -16,7 +16,8 @@ spec-compliant output, never hide AsyncAPI semantics.
 - Documentation only — this is NOT a runtime transport. Use
   `@nestjs/microservices` or `@nest-native/kafka` for transport.
 - Current stabilization support line:
-  - Node.js `>=22` (`>=22.12` to load NestJS 12 from CommonJS)
+  - Node.js `>=22` (`>=22.12` on the NestJS 12 end; `engines` stays `>=22` —
+    see the Node floor entry under Accumulated Project Decisions)
   - NestJS `11.x` / `12.x` (peer `^11.0.0 || ^12.0.0`; see the NestJS 12
     entries under Accumulated Project Decisions)
   - AsyncAPI spec target 3.0 (2.x: best-effort conversion only)
@@ -204,8 +205,14 @@ entry should be one short paragraph with rationale.)
 
 - **Peer majors are widened, never swapped — applied to NestJS 12.** The
   published peer range is `@nestjs/common` / `@nestjs/core`
-  `^11.0.0 || ^12.0.0`. The devDependencies and the lockfile stay on 11: that
-  is what `npm ci` and the default jobs test. The `nestjs-latest-major` CI leg
+  `^11.0.0 || ^12.0.0`, plus the optional `@nestjs/swagger` peer at
+  `^11.4.4 || ^12.0.0` (11.4.4 is the version the package was first built
+  against and the one the samples exercised until the lockfile repair below).
+  An optional peer must appear in `peerDependencies` as well as in
+  `peerDependenciesMeta`: the meta block only carries the `optional` flag, so
+  a peer listed there alone has no range for npm to validate at all. The
+  devDependencies and the lockfile stay on 11: that is what `npm ci` and the
+  default jobs test. The `nestjs-latest-major` CI leg
   installs the 12 set on top with `npm install --no-save --workspaces
   --include-workspace-root` and re-runs the build, typecheck, the suite, and
   the whole sample matrix, so both ends of the range are tested claims (build
@@ -263,6 +270,19 @@ entry should be one short paragraph with rationale.)
   `onApplicationBootstrap` / shutdown hooks of different providers; document
   generation walks the finished container and does not participate in hooks,
   and no test asserts a hook order.
+- **The Node floor stays `>=22`; NestJS 12 needs `>=22.12` of it.** This
+  package publishes CommonJS, and a CommonJS application loads the ESM-only
+  NestJS 12 through Node's `require(esm)`, which is behind a flag before Node
+  22.12.0 (and 20.19.0 on the 20 line, below this package's floor);
+  `@nestjs/swagger` 12 declares that same floor in its own `engines`
+  (`^20.19.0 || >=22.12.0`). `engines.node` stays `>=22` because it describes
+  the whole peer range — the NestJS 11 end runs on any Node 22 — but Node
+  22.0–22.11 satisfies it and still cannot load NestJS 12, so every place that
+  states the floor (the support line in section 1, both README compatibility
+  tables, the support policy, both migration guides, the changelog) carries
+  the `>=22.12` qualifier for 12 rather than leaving `>=22` to imply it.
+  Raising `engines` to `>=22.12` would be a floor change for NestJS 11 users
+  and is a separate decision, not part of widening the peer range.
 
 ### 13. Mutation testing (Stryker — occasional targeted audit, local only, never in CI)
 
