@@ -4,7 +4,7 @@ Thanks for helping improve `@nest-native/asyncapi`.
 
 ## Project Status
 
-This package is `0.2.0` (`0.x`) — functional and fully tested (100% coverage),
+This package is `0.3.0` (`0.x`) — functional and fully tested (100% coverage),
 and usable today, but the public API may still change before `1.0`. The
 initial `0.x` release covers the public AsyncAPI decorators
 (`@AsyncApiChannel`, `@AsyncApiPub`, `@AsyncApiSub`, `@AsyncApiMessage`,

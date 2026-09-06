@@ -8,6 +8,8 @@ package release is useful for users.
 
 ## Unreleased
 
+## 0.3.0
+
 - **NestJS 12 is now an allowed peer** (`@nestjs/common` / `@nestjs/core`
   `^11.0.0 || ^12.0.0`; the optional `@nestjs/swagger` peer, previously listed
   only in `peerDependenciesMeta` with no range for npm to validate, now
