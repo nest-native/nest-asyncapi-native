@@ -63,15 +63,26 @@ This package's headline differentiators:
 
 | Runtime | Supported line |
 | --- | --- |
-| Node.js | `>=22` |
-| NestJS | `11.x` |
+| Node.js | `>=22` (`>=22.12` with NestJS 12 — see the note below the table) |
+| NestJS | `^11.0.0 \|\| ^12.0.0` |
 | AsyncAPI spec target | `3.0` (2.x: best-effort conversion only) |
 | Transports | Kafka, NATS, MQTT, AMQP (typed protocol bindings) |
 | Validation | Zod and class-validator, both app-owned |
 
 The published package keeps `"dependencies": {}`. The NestJS packages are
-declared as `peerDependencies`, and the AsyncAPI parser and viewer are optional
-peers, so applications install only the ecosystems they actually use.
+declared as `peerDependencies` (`@nestjs/swagger` as an optional one, range
+`^11.4.4 || ^12.0.0`), and the AsyncAPI parser and viewer are optional peers,
+so applications install only the ecosystems they actually use.
+
+NestJS 11 runs on any Node.js `>=22`. NestJS 12 is ESM-only, and a CommonJS
+application loads it through Node's `require(esm)`, which is behind a flag
+before Node.js 22.12.0 — so the 12 end of the range needs Node.js `>=22.12`.
+`engines` stays `>=22` because the 11 end does not need more. Both ends of the
+NestJS range are tested claims: the default install and lockfile stay on 11,
+and a dedicated CI leg (`nestjs-latest-major`) installs the 12 set on top,
+proves every workspace — package and samples alike — resolved 12 rather than a
+nested 11, and re-runs the suite, the build, and the whole sample matrix
+against it.
 
 ## Repository Layout
 
@@ -210,10 +221,17 @@ packages, using `node:test` and `c8`:
 - coverage with `c8`, enforced at 100% for statements, branches, functions, and lines
 - sticky PR comments for coverage, test performance, and cognitive complexity
 - cognitive complexity enforcement with SonarJS threshold `15`
-- package tarball validation and README/docs link validation
+- package tarball validation, README/docs link validation, and a check that
+  every workspace resolves the hoisted NestJS the lockfile declares (a nested
+  copy under a sample means the lockfile drifted and the samples run a
+  different NestJS than the suite)
 - a Docusaurus docs-site build (`onBrokenLinks: throw`)
 - supply-chain audit for high-severity issues, across the package and docs site
 - a sample matrix where every generated document passes `@asyncapi/parser`
+- a NestJS 12 compatibility leg (`nestjs-latest-major`): the 12 set installed
+  on top of the default 11 lockfile with `--no-save`, every workspace proven to
+  resolve 12, then typecheck, the suite, the build, and the full sample matrix
+  re-run against it
 
 Run the local gate with:
 

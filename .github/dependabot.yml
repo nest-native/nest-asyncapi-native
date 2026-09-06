@@ -21,8 +21,16 @@ updates:
           - "patch"
         patterns:
           - "*"
-      nest-asyncapi-peer-minor-patch:
+      # Majors are grouped deliberately, not just minors and patches. The
+      # @nestjs/* packages are a set with peer dependencies on each other, so a
+      # major that arrives one-package-per-PR produces a tree npm refuses to
+      # install: NestJS 12 opened fifteen separate PRs across this org, each
+      # bumping one package and leaving its siblings on 11, and every one failed
+      # `npm ci` with ERESOLVE before a single test ran. Grouped, a major
+      # arrives as one PR that can actually be evaluated.
+      nest-asyncapi-peer:
         update-types:
+          - "major"
           - "minor"
           - "patch"
         patterns:
@@ -30,14 +38,16 @@ updates:
           - "@asyncapi/react-component"
           - "@nestjs/common"
           - "@nestjs/core"
+          - "@nestjs/microservices"
           - "@nestjs/platform-express"
           - "@nestjs/platform-fastify"
-          - "@nestjs/swagger"
           - "class-validator"
           - "reflect-metadata"
           - "rxjs"
           - "zod"
           - "zod-to-json-schema"
+          - "@nestjs/swagger"
+          - "@nestjs/testing"
 
   - package-ecosystem: "github-actions"
     directory: "/"

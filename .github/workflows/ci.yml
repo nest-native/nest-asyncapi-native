@@ -37,15 +37,19 @@ jobs:
       - name: Typecheck package
         run: npm run typecheck --workspace @nest-native/asyncapi
 
-  package-test-node-20:
-    name: Package tests/coverage (Node 20)
+  package-test-node-24:
+    name: Package tests/coverage (Node 24)
     runs-on: ubuntu-latest
-
+    # The second Node line. package-quality runs the suite (plus the complexity
+    # gate and the PR reports) on the floor, 22; this job runs the same suite
+    # with coverage on 24, so Node 24 is a tested claim for the tests too, not
+    # only for package-build. This was the Node 20 job until the Node 20
+    # sunset (#59) moved it to 22, where it only duplicated package-quality.
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with:
-          node-version: '22'
+          node-version: '24'
 
       - name: Install dependencies
         run: npm ci
@@ -266,6 +270,63 @@ jobs:
           | `06-forrootasync-config` | `AsyncApiModule.forRootAsync` resolving the document defaults from an injected `ConfigService` | Boots the app, asserts the async config seeded the document, and validates it with `@asyncapi/parser` |
           EOF
           sed -i "s/DURATION_PLACEHOLDER/${DURATION_SECONDS}s (${DURATION_MS}ms)/" "$GITHUB_STEP_SUMMARY"
+
+  nestjs-latest-major:
+    name: NestJS 12 compatibility (Node 22)
+    runs-on: ubuntu-latest
+    # The published peer range allows @nestjs/common and @nestjs/core
+    # ^11 || ^12, but the devDependencies and the lockfile stay on 11 so the
+    # jobs above keep testing that end. This leg installs the 12 set on top
+    # with --no-save and is what makes the 12 end a tested claim rather than
+    # an assumption. Three details are load-bearing:
+    #   - `--workspaces --include-workspace-root`, not `--workspace-root`: the
+    #     samples pin @nestjs/* exactly, so with the latter npm satisfies each
+    #     sample's own 11 pin by nesting an 11 copy under sample/*/node_modules
+    #     and the sample matrix silently runs on 11 while the root reports 12.
+    #     The check script below fails the leg if any workspace resolves
+    #     another major or a nested copy.
+    #   - every @nestjs/* package any workspace declares is listed, in ONE
+    #     command. --no-save never persists the 12 edges, so a second
+    #     `npm install` would reconcile the tree back to the 11 lockfile; and
+    #     @nestjs/swagger and @nestjs/microservices peer on common/core ^12 at
+    #     12, so leaving either on 11 is an ERESOLVE, not a mixed tree.
+    #   - the version print reads the manifest by path: the 12 exports map
+    #     routes `./*` to `./*.js`, so `require('@nestjs/core/package.json')`
+    #     throws on 12.
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install with NestJS 12
+        run: |
+          npm install --no-save --workspaces --include-workspace-root \
+            @nestjs/common@^12.0.0 @nestjs/core@^12.0.0 \
+            @nestjs/platform-express@^12.0.0 @nestjs/testing@^12.0.0 \
+            @nestjs/swagger@^12.0.0 @nestjs/microservices@^12.0.0
+          node -e "console.log('@nestjs/core', require('./node_modules/@nestjs/core/package.json').version)"
+
+      - name: Prove every workspace resolves NestJS 12
+        run: node scripts/check-resolved-nestjs-major.mjs 12
+
+      # The build comes first: the samples import @nest-native/asyncapi through
+      # the workspace link, whose entry points live in packages/asyncapi/dist,
+      # so the workspace-wide typecheck below needs the package built.
+      - name: Build package against NestJS 12
+        run: npm run build --workspace @nest-native/asyncapi
+
+      - name: Typecheck every workspace against NestJS 12
+        run: npm run typecheck
+
+      - name: Run the suite against NestJS 12
+        run: npm test
+
+      - name: Run sample matrix against NestJS 12
+        run: npm run ci:sample
 
   docs-site:
     name: Docusaurus build

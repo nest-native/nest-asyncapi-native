@@ -19,8 +19,9 @@ current Node and `@nestjs/swagger`
 ([`#596`](https://github.com/flamewow/nestjs-asyncapi/issues/596)), and users
 openly ask whether it is maintained
 ([`#578`](https://github.com/flamewow/nestjs-asyncapi/issues/578)).
-`@nest-native/asyncapi` targets AsyncAPI 3.0, runs on Node `>=22` and NestJS
-`11.x`, and keeps the published package at `"dependencies": {}`.
+`@nest-native/asyncapi` targets AsyncAPI 3.0, runs on Node `>=22` (`>=22.12`
+with NestJS 12) and NestJS `11.x` or `12.x`, and keeps the published package at
+`"dependencies": {}`.
 
 ## The one conceptual change: 2.x channels → 3.0 channels + operations
 

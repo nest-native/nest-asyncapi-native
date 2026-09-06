@@ -76,12 +76,19 @@ npm run ci:docs
 
 ## Release And Security
 
-Release validation checks README/docs links, sample version sync, and the
-package tarball:
+Release validation checks README/docs links, README version literals, sample
+version sync, the package tarball, and that every workspace resolves the hoisted
+NestJS the lockfile declares:
 
 ```bash
 npm run release:check
 ```
+
+Every sample pins exactly the `@nestjs/*` versions the root resolves, so a copy
+nested under `sample/*/node_modules` means the lockfile drifted from the sample
+manifests and the samples silently exercise a different NestJS than the package
+suite. `release:check:nestjs-resolution` fails on any nested copy, and on any
+major other than the one the root `@nestjs/core` devDependency declares.
 
 For the publish checklist and version-sync rules, see [Release Guide](release.md).
 
@@ -110,3 +117,36 @@ npm run ci:sample
 `release:check` also verifies every `sample/*/package.json` depends on the
 current `packages/asyncapi` version and that npm workspace resolution agrees with
 the lockfile.
+
+## NestJS 12 Compatibility Leg
+
+The published peer range is `@nestjs/common` / `@nestjs/core`
+`^11.0.0 || ^12.0.0`. The devDependencies and the lockfile stay on 11 — that is
+what `npm ci` and every job above test — and the `nestjs-latest-major` job makes
+the 12 end a tested claim rather than an assumption (the build runs before the
+workspace-wide typecheck because the samples import `@nest-native/asyncapi`
+through the workspace link, whose entry points live in `packages/asyncapi/dist`):
+
+```bash
+npm ci
+npm install --no-save --workspaces --include-workspace-root \
+  @nestjs/common@^12.0.0 @nestjs/core@^12.0.0 \
+  @nestjs/platform-express@^12.0.0 @nestjs/testing@^12.0.0 \
+  @nestjs/swagger@^12.0.0 @nestjs/microservices@^12.0.0
+node scripts/check-resolved-nestjs-major.mjs 12
+npm run build --workspace @nest-native/asyncapi
+npm run typecheck
+npm test
+npm run ci:sample
+```
+
+Three details are load-bearing. `--workspaces --include-workspace-root` (not
+`--workspace-root`) is what puts 12 in front of the samples: they pin `@nestjs/*`
+exactly, so with `--workspace-root` alone npm satisfies each sample's 11 pin by
+nesting an 11 copy under it, and the sample matrix runs on 11 while the root
+reports 12 — the check script fails the leg if any workspace resolves another
+major or a nested copy. Every `@nestjs/*` package any workspace declares goes in
+one command, because `--no-save` never persists the 12 edges and a second
+`npm install` reconciles the tree back to the 11 lockfile. And the version print
+reads `node_modules/@nestjs/core/package.json` by path, because the 12 exports
+map does not expose `package.json`.
