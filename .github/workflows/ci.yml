@@ -267,6 +267,60 @@ jobs:
           EOF
           sed -i "s/DURATION_PLACEHOLDER/${DURATION_SECONDS}s (${DURATION_MS}ms)/" "$GITHUB_STEP_SUMMARY"
 
+  nestjs-latest-major:
+    name: NestJS 12 compatibility (Node 22)
+    runs-on: ubuntu-latest
+    # The published peer range allows @nestjs/common and @nestjs/core
+    # ^11 || ^12, but the devDependencies and the lockfile stay on 11 so the
+    # jobs above keep testing that end. This leg installs the 12 set on top
+    # with --no-save and is what makes the 12 end a tested claim rather than
+    # an assumption. Three details are load-bearing:
+    #   - `--workspaces --include-workspace-root`, not `--workspace-root`: the
+    #     samples pin @nestjs/* exactly, so with the latter npm satisfies each
+    #     sample's own 11 pin by nesting an 11 copy under sample/*/node_modules
+    #     and the sample matrix silently runs on 11 while the root reports 12.
+    #     The check script below fails the leg if any workspace resolves
+    #     another major or a nested copy.
+    #   - every @nestjs/* package any workspace declares is listed, in ONE
+    #     command. --no-save never persists the 12 edges, so a second
+    #     `npm install` would reconcile the tree back to the 11 lockfile; and
+    #     @nestjs/swagger and @nestjs/microservices peer on common/core ^12 at
+    #     12, so leaving either on 11 is an ERESOLVE, not a mixed tree.
+    #   - the version print reads the manifest by path: the 12 exports map
+    #     routes `./*` to `./*.js`, so `require('@nestjs/core/package.json')`
+    #     throws on 12.
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install with NestJS 12
+        run: |
+          npm install --no-save --workspaces --include-workspace-root \
+            @nestjs/common@^12.0.0 @nestjs/core@^12.0.0 \
+            @nestjs/platform-express@^12.0.0 @nestjs/testing@^12.0.0 \
+            @nestjs/swagger@^12.0.0 @nestjs/microservices@^12.0.0
+          node -e "console.log('@nestjs/core', require('./node_modules/@nestjs/core/package.json').version)"
+
+      - name: Prove every workspace resolves NestJS 12
+        run: node scripts/check-resolved-nestjs-major.mjs 12
+
+      - name: Typecheck against NestJS 12
+        run: npm run typecheck
+
+      - name: Run the suite against NestJS 12
+        run: npm test
+
+      - name: Build package
+        run: npm run build --workspace @nest-native/asyncapi
+
+      - name: Run sample matrix against NestJS 12
+        run: npm run ci:sample
+
   docs-site:
     name: Docusaurus build
     runs-on: ubuntu-latest
