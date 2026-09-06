@@ -8,13 +8,24 @@ or AsyncAPI status.
 | Runtime | Supported line |
 | --- | --- |
 | Node.js | `>=22` |
-| NestJS | `11.x` |
+| NestJS | `^11.0.0 \|\| ^12.0.0` |
 | AsyncAPI spec target | `3.0` (2.x: best-effort conversion only) |
 | TypeScript | Current project compiler line |
 
 Required peers are `@nestjs/common`, `@nestjs/core`, `reflect-metadata`, and
 `rxjs`. The AsyncAPI parser, the viewer, `@nestjs/swagger`, `class-validator`,
 and `zod` are optional peers — install only the ecosystems your application uses.
+
+NestJS 12 is ESM-only. A CommonJS application loads it through `require(esm)`,
+which needs Node `>=22.12`; 12 also runs lifecycle hooks by component hierarchy
+level rather than registration order, which this package never depended on.
+Both ends of the NestJS range are tested: the default install and lockfile stay
+on 11, and the `nestjs-latest-major` CI leg installs the 12 set on top, proves
+every workspace resolved 12, and re-runs the suite, the build, and the full
+sample matrix — including the `@nestjs/swagger` schema chain and the
+`@nestjs/microservices` migration sample — against it. When you document DTOs
+on NestJS 12, install `@nestjs/swagger` 12 alongside: its own peer range
+requires `@nestjs/common` and `@nestjs/core` 12.
 
 ## Public API Tiers
 

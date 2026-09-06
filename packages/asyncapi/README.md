@@ -43,8 +43,8 @@ runtime transport.
 
 | Runtime | Supported line |
 | --- | --- |
-| Node.js | `>=20` |
-| NestJS | `11.x` |
+| Node.js | `>=22` (`>=22.12` to load NestJS 12 from CommonJS) |
+| NestJS | `^11.0.0 \|\| ^12.0.0` |
 | AsyncAPI spec target | `3.0` (2.x: best-effort conversion only) |
 | Transports | Kafka, NATS, MQTT, AMQP (typed bindings) |
 
