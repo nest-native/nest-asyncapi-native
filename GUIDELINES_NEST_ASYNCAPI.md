@@ -207,8 +207,11 @@ entry should be one short paragraph with rationale.)
   `^11.0.0 || ^12.0.0`. The devDependencies and the lockfile stay on 11: that
   is what `npm ci` and the default jobs test. The `nestjs-latest-major` CI leg
   installs the 12 set on top with `npm install --no-save --workspaces
-  --include-workspace-root` and re-runs typecheck, the suite, the build, and
-  the whole sample matrix, so both ends of the range are tested claims. A
+  --include-workspace-root` and re-runs the build, typecheck, the suite, and
+  the whole sample matrix, so both ends of the range are tested claims (build
+  first: the samples import `@nest-native/asyncapi` through the workspace
+  link, whose entry points live in `packages/asyncapi/dist`, so a fresh
+  checkout cannot typecheck the samples before the package is built). A
   dependabot PR that moves a `@nestjs/*` devDependency to 12 is declined —
   merging it would stop testing the 11 end. Load-bearing details of the leg:
   `--workspaces --include-workspace-root`, not `--workspace-root`, because the

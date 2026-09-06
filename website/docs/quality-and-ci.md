@@ -123,7 +123,9 @@ the lockfile.
 The published peer range is `@nestjs/common` / `@nestjs/core`
 `^11.0.0 || ^12.0.0`. The devDependencies and the lockfile stay on 11 — that is
 what `npm ci` and every job above test — and the `nestjs-latest-major` job makes
-the 12 end a tested claim rather than an assumption:
+the 12 end a tested claim rather than an assumption (the build runs before the
+workspace-wide typecheck because the samples import `@nest-native/asyncapi`
+through the workspace link, whose entry points live in `packages/asyncapi/dist`):
 
 ```bash
 npm ci
@@ -132,9 +134,9 @@ npm install --no-save --workspaces --include-workspace-root \
   @nestjs/platform-express@^12.0.0 @nestjs/testing@^12.0.0 \
   @nestjs/swagger@^12.0.0 @nestjs/microservices@^12.0.0
 node scripts/check-resolved-nestjs-major.mjs 12
+npm run build --workspace @nest-native/asyncapi
 npm run typecheck
 npm test
-npm run build --workspace @nest-native/asyncapi
 npm run ci:sample
 ```
 

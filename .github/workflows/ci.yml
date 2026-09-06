@@ -309,14 +309,17 @@ jobs:
       - name: Prove every workspace resolves NestJS 12
         run: node scripts/check-resolved-nestjs-major.mjs 12
 
-      - name: Typecheck against NestJS 12
+      # The build comes first: the samples import @nest-native/asyncapi through
+      # the workspace link, whose entry points live in packages/asyncapi/dist,
+      # so the workspace-wide typecheck below needs the package built.
+      - name: Build package against NestJS 12
+        run: npm run build --workspace @nest-native/asyncapi
+
+      - name: Typecheck every workspace against NestJS 12
         run: npm run typecheck
 
       - name: Run the suite against NestJS 12
         run: npm test
-
-      - name: Build package
-        run: npm run build --workspace @nest-native/asyncapi
 
       - name: Run sample matrix against NestJS 12
         run: npm run ci:sample
